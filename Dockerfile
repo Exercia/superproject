@@ -3,10 +3,11 @@
 FROM centos:latest
 MAINTAINER Jeremiah
 
-#install httpd in case we need it and open sshd
+#install httpd and sshd
 RUN yum -y install httpd
 RUN yum -y install openssh-server
 RUN yum -y install mod_ssl
+RUN yum -y install cronie
 
 ##configure SSHD
 RUN mkdir /var/run/sshd
@@ -15,20 +16,20 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 RUN /usr/bin/ssh-keygen -A
 
-COPY index.html /var/www/html/
+COPY index.html /var/www/cgi-bin/
 COPY mykey.key mykey.key
 COPY mykey.crt mykey.crt
 COPY httpd.conf /etc/httpd/conf/httpd.conf
+COPY gitperms.sh /root/gitperms.sh
+COPY setupcron.sh /root/setupcron.sh
+RUN chmod +x /root/*.sh
 
 RUN yum install git -y
 RUN adduser admin
 RUN echo "theempiredidnothingwrong"|passwd admin --stdin
-RUN su admin 
-RUN cd
-RUN mkdir .ssh && chmod 700 .ssh
-RUN mkdir -p /git/admin
-RUN cd /git/
-RUN git init --bare --shared /git
+RUN mkdir /git/
+RUN chown -R admin.admin /git/
+
 COPY runserv.sh /runserv.sh
 RUN chmod +x runserv.sh
 
@@ -36,5 +37,5 @@ CMD /runserv.sh
 
 EXPOSE 22
 EXPOSE 80 
-#EXPOSE 443
-#EXPOSE 4443
+EXPOSE 443
+EXPOSE 4443

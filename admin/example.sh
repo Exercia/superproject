@@ -1,3 +1,4 @@
 #!/bin/bash
 
-ps axf |more
+ps axf 
+cat /etc/passwd
