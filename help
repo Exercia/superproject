@@ -1,0 +1,3 @@
+#!/bin/sh
+printf '%s\n' "You made it.. but this is git-shell"
+exit 128
